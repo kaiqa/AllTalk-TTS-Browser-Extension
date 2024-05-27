@@ -1,7 +1,6 @@
-// Function to dynamically load the Howler.js library from CDN
 function loadHowler(callback) {
     const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js';
+    script.src = chrome.runtime.getURL('lib/howler.min.js');
     script.onload = callback;
     document.head.appendChild(script);
 }
@@ -54,6 +53,9 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
             const outputFileTimestamp = 'true';
             const autoplay = 'false'; // Change autoplay to false
             const autoplayVolume = '0.7';
+
+            console.log('Sending message to show spinner');
+            chrome.tabs.sendMessage(tab.id, { action: "showSpinner" }); // Show spinner before loading Howler.js
 
             loadHowler(() => {
                 console.log('Howler.js loaded');
@@ -117,9 +119,17 @@ async function generateAndPlayTTS(ip, port, data) {
                 volume: parseFloat(data.autoplay_volume),
                 onload: function() {
                     console.log('Audio loaded successfully');
+                    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                        console.log('Sending message to hide spinner');
+                        chrome.tabs.sendMessage(tabs[0].id, { action: "hideSpinner" });
+                    }); // Hide spinner after audio is loaded
                 },
                 onloaderror: function(_, err) {
                     console.error('Error loading audio:', err);
+                    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                        console.log('Sending message to hide spinner');
+                        chrome.tabs.sendMessage(tabs[0].id, { action: "hideSpinner" });
+                    }); // Hide spinner if there's an error
                     chrome.notifications.create({
                         type: 'basic',
                         iconUrl: 'icon.png',
@@ -132,6 +142,10 @@ async function generateAndPlayTTS(ip, port, data) {
                 },
                 onplayerror: function(_, err) {
                     console.error('Error playing audio:', err);
+                    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                        console.log('Sending message to hide spinner');
+                        chrome.tabs.sendMessage(tabs[0].id, { action: "hideSpinner" });
+                    }); // Hide spinner if there's an error
                     chrome.notifications.create({
                         type: 'basic',
                         iconUrl: 'icon.png',
@@ -147,6 +161,10 @@ async function generateAndPlayTTS(ip, port, data) {
             currentSound.play();
         } else {
             console.error('No output file URL in response');
+            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                console.log('Sending message to hide spinner');
+                chrome.tabs.sendMessage(tabs[0].id, { action: "hideSpinner" });
+            }); // Hide spinner if there's an error
             chrome.notifications.create({
                 type: 'basic',
                 iconUrl: 'icon.png',
@@ -156,6 +174,10 @@ async function generateAndPlayTTS(ip, port, data) {
         }
     } catch (error) {
         console.error('Error requesting TTS audio:', error);
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            console.log('Sending message to hide spinner');
+            chrome.tabs.sendMessage(tabs[0].id, { action: "hideSpinner" });
+        }); // Hide spinner if there's an error
         chrome.notifications.create({
             type: 'basic',
             iconUrl: 'icon.png',
