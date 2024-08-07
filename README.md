@@ -13,6 +13,13 @@ Seamless Integration: Uses Howler.js for smooth audio playback within the browse
 AllTalk is based on the Coqui TTS engine, similar to the Coqui_tts extension for Text generation webUI, however supports a variety of advanced features, such as a settings page, low VRAM support, DeepSpeed, narrator, model finetuning, custom models, wav file maintenance. It can also be used with 3rd Party software via JSON calls.
 https://github.com/erew123/alltalk_tts
 
+###
+Extension options:
+#### Navigate to: 
+* chrome://extensions
+* Select TTS Extension Details
+* Click on Extension options and fill in the form and save:
+* Example: IP Address: 192.168.1.35, Port: 7851, Character Voice: female_01.wav, Language: en
 
 ### Exporting the Extension
 #### Prepare the Extension:
