@@ -40,37 +40,41 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
         const selectionText = info.selectionText;
         console.log(`Selected text: ${selectionText}`);
         if (selectionText) {
-            const ip = '192.168.1.35'; // Set your IP here
-            const port = '7851'; // Set your port here
-            const textInput = selectionText;
-            const textFiltering = 'standard';
-            const characterVoice = 'timDeutsch.wav';
-            const narratorEnabled = 'false';
-            const narratorVoice = 'male_01.wav';
-            const textNotInside = 'character';
-            const language = 'en';
-            const outputFileName = 'myoutputfile';
-            const outputFileTimestamp = 'true';
-            const autoplay = 'false'; // Change autoplay to false
-            const autoplayVolume = '0.7';
+            // Load settings
+            chrome.storage.sync.get(['ip', 'port', 'characterVoice'], (data) => {
+                const ip = data.ip || '192.168.1.35';
+                const port = data.port || '7851';
+                const characterVoice = data.characterVoice || 'timDeutsch.wav';
 
-            console.log('Sending message to show spinner');
-            chrome.tabs.sendMessage(tab.id, { action: "showSpinner" }); // Show spinner before loading Howler.js
+                const textInput = selectionText;
+                const textFiltering = 'standard';
+                const narratorEnabled = 'false';
+                const narratorVoice = 'male_01.wav';
+                const textNotInside = 'character';
+                const language = 'en';
+                const outputFileName = 'myoutputfile';
+                const outputFileTimestamp = 'true';
+                const autoplay = 'false';
+                const autoplayVolume = '0.7';
 
-            loadHowler(() => {
-                console.log('Howler.js loaded');
-                generateAndPlayTTS(ip, port, {
-                    text_input: textInput,
-                    text_filtering: textFiltering,
-                    character_voice_gen: characterVoice,
-                    narrator_enabled: narratorEnabled,
-                    narrator_voice_gen: narratorVoice,
-                    text_not_inside: textNotInside,
-                    language: language,
-                    output_file_name: outputFileName,
-                    output_file_timestamp: outputFileTimestamp,
-                    autoplay: autoplay, // Set autoplay to false to prevent API from playing
-                    autoplay_volume: autoplayVolume
+                console.log('Sending message to show spinner');
+                chrome.tabs.sendMessage(tab.id, { action: "showSpinner" });
+
+                loadHowler(() => {
+                    console.log('Howler.js loaded');
+                    generateAndPlayTTS(ip, port, {
+                        text_input: textInput,
+                        text_filtering: textFiltering,
+                        character_voice_gen: characterVoice,
+                        narrator_enabled: narratorEnabled,
+                        narrator_voice_gen: narratorVoice,
+                        text_not_inside: textNotInside,
+                        language: language,
+                        output_file_name: outputFileName,
+                        output_file_timestamp: outputFileTimestamp,
+                        autoplay: autoplay,
+                        autoplay_volume: autoplayVolume
+                    }, tab);
                 });
             });
         } else {
@@ -85,7 +89,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     }
 });
 
-async function generateAndPlayTTS(ip, port, data) {
+async function generateAndPlayTTS(ip, port, data, tab) {
     const url = `http://${ip}:${port}/api/tts-generate`;
 
     try {

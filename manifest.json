@@ -1,27 +1,29 @@
 {
-  "manifest_version": 2,
-  "name": "TTS Extension",
-  "version": "1.0",
-  "permissions": [
-    "contextMenus",
-    "notifications",
-    "activeTab"
-  ],
-  "background": {
-    "scripts": ["background.js"],
-    "persistent": false
-  },
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"]
-    }
-  ],
-  "icons": {
-    "48": "images/icon.png"
-  },
-  "browser_action": {
-    "default_popup": "popup.html",
-    "default_icon": "images/icon.png"
-  }
+    "manifest_version": 2,
+    "name": "TTS Extension",
+    "version": "1.0",
+    "permissions": [
+        "contextMenus",
+        "notifications",
+        "activeTab",
+        "storage"
+    ],
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": false
+    },
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["content.js"]
+        }
+    ],
+    "icons": {
+        "48": "images/icon.png"
+    },
+    "browser_action": {
+        "default_popup": "popup.html",
+        "default_icon": "images/icon.png"
+    },
+    "options_page": "options.html"
 }
