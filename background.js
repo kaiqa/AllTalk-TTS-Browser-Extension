@@ -40,11 +40,11 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
         const selectionText = info.selectionText;
         console.log(`Selected text: ${selectionText}`);
         if (selectionText) {
-            const ip = '192.168.1.3'; // Set your IP here
+            const ip = '192.168.1.35'; // Set your IP here
             const port = '7851'; // Set your port here
             const textInput = selectionText;
             const textFiltering = 'standard';
-            const characterVoice = 'thompson.wav';
+            const characterVoice = 'timDeutsch.wav';
             const narratorEnabled = 'false';
             const narratorVoice = 'male_01.wav';
             const textNotInside = 'character';
