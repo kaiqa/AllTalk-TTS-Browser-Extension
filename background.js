@@ -41,17 +41,17 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
         console.log(`Selected text: ${selectionText}`);
         if (selectionText) {
             // Load settings
-            chrome.storage.sync.get(['ip', 'port', 'characterVoice'], (data) => {
+            chrome.storage.sync.get(['ip', 'port', 'characterVoice', 'language'], (data) => {
                 const ip = data.ip || '192.168.1.35';
                 const port = data.port || '7851';
-                const characterVoice = data.characterVoice || 'timDeutsch.wav';
+                const characterVoice = data.characterVoice || 'female_01.wav';
+                const language = data.language || 'en';
 
                 const textInput = selectionText;
                 const textFiltering = 'standard';
                 const narratorEnabled = 'false';
                 const narratorVoice = 'male_01.wav';
                 const textNotInside = 'character';
-                const language = 'en';
                 const outputFileName = 'myoutputfile';
                 const outputFileTimestamp = 'true';
                 const autoplay = 'false';
