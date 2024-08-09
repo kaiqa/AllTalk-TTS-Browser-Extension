@@ -1,16 +1,11 @@
-function loadHowler(callback) {
-    const script = document.createElement('script');
-    script.src = chrome.runtime.getURL('lib/howler.min.js');
-    script.onload = callback;
-    document.head.appendChild(script);
-}
+import { Howl, Howler } from 'howler';
 
 chrome.runtime.onInstalled.addListener(() => {
     console.log('Extension installed');
     createContextMenu();
     chrome.notifications.create({
         type: 'basic',
-        iconUrl: 'icon.png',
+        iconUrl:'images/icon.png',
         title: 'TTS Extension Installed',
         message: 'Right-click on selected text and choose "Play TTS" to use the extension.'
     });
@@ -58,30 +53,31 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
                 const autoplayVolume = '0.7';
 
                 console.log('Sending message to show spinner');
-                chrome.tabs.sendMessage(tab.id, { action: "showSpinner" });
-
-                loadHowler(() => {
-                    console.log('Howler.js loaded');
-                    generateAndPlayTTS(ip, port, {
-                        text_input: textInput,
-                        text_filtering: textFiltering,
-                        character_voice_gen: characterVoice,
-                        narrator_enabled: narratorEnabled,
-                        narrator_voice_gen: narratorVoice,
-                        text_not_inside: textNotInside,
-                        language: language,
-                        output_file_name: outputFileName,
-                        output_file_timestamp: outputFileTimestamp,
-                        autoplay: autoplay,
-                        autoplay_volume: autoplayVolume
-                    }, tab);
+                chrome.scripting.executeScript({
+                    target: { tabId: tab.id },
+                    func: () => { chrome.runtime.sendMessage({ action: "showSpinner" }); }
                 });
+
+                console.log('Howler.js loaded');
+                generateAndPlayTTS(ip, port, {
+                    text_input: textInput,
+                    text_filtering: textFiltering,
+                    character_voice_gen: characterVoice,
+                    narrator_enabled: narratorEnabled,
+                    narrator_voice_gen: narratorVoice,
+                    text_not_inside: textNotInside,
+                    language: language,
+                    output_file_name: outputFileName,
+                    output_file_timestamp: outputFileTimestamp,
+                    autoplay: autoplay,
+                    autoplay_volume: autoplayVolume
+                }, tab);
             });
         } else {
             console.error('No text selected');
             chrome.notifications.create({
                 type: 'basic',
-                iconUrl: 'icon.png',
+                iconUrl: 'images/icon.png',
                 title: 'Error',
                 message: 'No text selected for TTS.'
             });
@@ -123,20 +119,20 @@ async function generateAndPlayTTS(ip, port, data, tab) {
                 volume: parseFloat(data.autoplay_volume),
                 onload: function() {
                     console.log('Audio loaded successfully');
-                    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-                        console.log('Sending message to hide spinner');
-                        chrome.tabs.sendMessage(tabs[0].id, { action: "hideSpinner" });
+                    chrome.scripting.executeScript({
+                        target: { tabId: tab.id },
+                        func: () => { chrome.runtime.sendMessage({ action: "hideSpinner" }); }
                     }); // Hide spinner after audio is loaded
                 },
                 onloaderror: function(_, err) {
                     console.error('Error loading audio:', err);
-                    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-                        console.log('Sending message to hide spinner');
-                        chrome.tabs.sendMessage(tabs[0].id, { action: "hideSpinner" });
+                    chrome.scripting.executeScript({
+                        target: { tabId: tab.id },
+                        func: () => { chrome.runtime.sendMessage({ action: "hideSpinner" }); }
                     }); // Hide spinner if there's an error
                     chrome.notifications.create({
                         type: 'basic',
-                        iconUrl: 'icon.png',
+                        iconUrl: 'images/icon.png',
                         title: 'Error',
                         message: 'Failed to load audio.'
                     });
@@ -146,13 +142,13 @@ async function generateAndPlayTTS(ip, port, data, tab) {
                 },
                 onplayerror: function(_, err) {
                     console.error('Error playing audio:', err);
-                    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-                        console.log('Sending message to hide spinner');
-                        chrome.tabs.sendMessage(tabs[0].id, { action: "hideSpinner" });
+                    chrome.scripting.executeScript({
+                        target: { tabId: tab.id },
+                        func: () => { chrome.runtime.sendMessage({ action: "hideSpinner" }); }
                     }); // Hide spinner if there's an error
                     chrome.notifications.create({
                         type: 'basic',
-                        iconUrl: 'icon.png',
+                        iconUrl: 'images/icon.png',
                         title: 'Error',
                         message: 'Failed to play audio.'
                     });
@@ -165,26 +161,26 @@ async function generateAndPlayTTS(ip, port, data, tab) {
             currentSound.play();
         } else {
             console.error('No output file URL in response');
-            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-                console.log('Sending message to hide spinner');
-                chrome.tabs.sendMessage(tabs[0].id, { action: "hideSpinner" });
+            chrome.scripting.executeScript({
+                target: { tabId: tab.id },
+                func: () => { chrome.runtime.sendMessage({ action: "hideSpinner" }); }
             }); // Hide spinner if there's an error
             chrome.notifications.create({
                 type: 'basic',
-                iconUrl: 'icon.png',
+                iconUrl: 'images/icon.png',
                 title: 'Error',
                 message: 'No output file URL in response from TTS API.'
             });
         }
     } catch (error) {
         console.error('Error requesting TTS audio:', error);
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            console.log('Sending message to hide spinner');
-            chrome.tabs.sendMessage(tabs[0].id, { action: "hideSpinner" });
+        chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            func: () => { chrome.runtime.sendMessage({ action: "hideSpinner" }); }
         }); // Hide spinner if there's an error
         chrome.notifications.create({
             type: 'basic',
-            iconUrl: 'icon.png',
+            iconUrl: 'images/icon.png',
             title: 'Network Error',
             message: 'Error requesting TTS audio. Please check your network and server settings.'
         });
