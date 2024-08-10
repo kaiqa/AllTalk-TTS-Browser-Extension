@@ -40,6 +40,7 @@ yarn-error.log*
 *.pid
 *.seed
 *.pid.lock
+*.map
 
 # SASS cache
 .sass-cache/

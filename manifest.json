@@ -14,8 +14,8 @@
     },
     "content_scripts": [
         {
-            "matches": ["<all_urls>"],
-            "js": ["content.js"]
+            "matches": ["http://*/*", "https://*/*"], 
+            "js": ["dist/content.bundle.js"]
         }
     ],
     "icons": {
@@ -25,5 +25,13 @@
         "default_popup": "popup.html",
         "default_icon": "images/icon.png"
     },
-    "options_page": "options.html"
+    "options_page": "options.html",
+    "externally_connectable": {
+        "matches": [
+            "*://192.168.1.35/*"
+        ]
+    },
+    "host_permissions": [
+        "*://192.168.1.35/*"
+    ]
 }

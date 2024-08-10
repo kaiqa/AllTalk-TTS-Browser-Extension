@@ -6,7 +6,7 @@ This browser extension enables text-to-speech (TTS) functionality for selected t
 
 Text-to-Speech Playback: Highlight text on any webpage, right-click, and select "Play TTS" to listen to the selected text.
 
-Seamless Integration: Uses Howler.js for smooth audio playback within the browser.
+Audio file will open within a new browser tab.
 
 ## About AllTalk
 
@@ -58,3 +58,6 @@ Debug Context Menu Actions:
 Right-click on any selected text on a web page to trigger the context menu action.
 Monitor the background script console (from the "background page" DevTools) to see logs and errors.
 Debug Notifications and Spinner:
+### Install
+npm install --save-dev webpack webpack-cli
+npx webpack
