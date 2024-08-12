@@ -1,3 +1,4 @@
+console.log("Content script loaded");
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "showSpinner") {
     console.log("Received message to show spinner");
@@ -72,4 +73,35 @@ function hideSpinner() {
 
 function playAudio(audioUrl) {
   console.log("trying to play audio for: " + audioUrl);
+}
+
+document.addEventListener("mouseup", function (e) {
+  if (e.button === 0) {
+    // Left mouse button
+    const selectedText = window.getSelection().toString();
+    if (selectedText.length > 0) {
+      // Use e.pageX and e.pageY to include scroll offsets
+      showFloatingCount(e.pageX, e.pageY, selectedText.length);
+    }
+  }
+});
+
+function showFloatingCount(x, y, count) {
+  let floater = document.getElementById("text-counter-floater");
+  if (!floater) {
+    floater = document.createElement("div");
+    floater.id = "text-counter-floater";
+    document.body.appendChild(floater);
+  }
+  floater.textContent = `char: ${count}`;
+  floater.style.position = "absolute"; // Positioned relative to the document
+  floater.style.left = `${x}px`;
+  floater.style.top = `${y}px`;
+  floater.style.backgroundColor = "white";
+  floater.style.border = "1px solid black";
+  floater.style.padding = "2px 5px";
+  floater.style.zIndex = "1000";
+  setTimeout(() => {
+    floater.remove();
+  }, 1000); // Automatically remove after 2 seconds
 }
