@@ -75,33 +75,69 @@ function playAudio(audioUrl) {
   console.log("trying to play audio for: " + audioUrl);
 }
 
-document.addEventListener("mouseup", function (e) {
-  if (e.button === 0) {
-    // Left mouse button
-    const selectedText = window.getSelection().toString();
-    if (selectedText.length > 0) {
-      // Use e.pageX and e.pageY to include scroll offsets
-      showFloatingCount(e.pageX, e.pageY, selectedText.length);
+// document.addEventListener("mouseup", function (e) {
+//   if (e.button === 0) {
+//     // Left mouse button
+//     const selectedText = window.getSelection().toString();
+//     if (selectedText.length > 0) {
+//       // Use e.pageX and e.pageY to include scroll offsets
+//       showFloatingCount(e.pageX, e.pageY, selectedText.length);
+//     }
+//   }
+// });
+
+// function showFloatingCount(x, y, count) {
+//   let floater = document.getElementById("text-counter-floater");
+//   if (!floater) {
+//     floater = document.createElement("div");
+//     floater.id = "text-counter-floater";
+//     document.body.appendChild(floater);
+//   }
+//   floater.textContent = `char: ${count}`;
+//   floater.style.position = "absolute"; // Positioned relative to the document
+//   floater.style.left = `${x}px`;
+//   floater.style.top = `${y}px`;
+//   floater.style.backgroundColor = "white";
+//   floater.style.border = "1px solid black";
+//   floater.style.padding = "2px 5px";
+//   floater.style.zIndex = "1000";
+//   setTimeout(() => {
+//     floater.remove();
+//   }, 1000); // Automatically remove after 2 seconds
+// }
+
+document.addEventListener('mouseup', function (e) {
+    if (e.button === 0) { // Left mouse button
+        const selectedText = window.getSelection().toString();
+        if (selectedText.length > 0) {
+            const textColor = shouldUseLightText() ? 'white' : 'black'; // Decide text color based on system theme
+            const backgroundColor = shouldUseLightText() ? 'black' : 'white'; // Inverse of text color for background
+            showFloatingCount(e.pageX, e.pageY, selectedText.length, textColor, backgroundColor);
+        }
     }
-  }
 });
 
-function showFloatingCount(x, y, count) {
-  let floater = document.getElementById("text-counter-floater");
-  if (!floater) {
-    floater = document.createElement("div");
-    floater.id = "text-counter-floater";
-    document.body.appendChild(floater);
-  }
-  floater.textContent = `char: ${count}`;
-  floater.style.position = "absolute"; // Positioned relative to the document
-  floater.style.left = `${x}px`;
-  floater.style.top = `${y}px`;
-  floater.style.backgroundColor = "white";
-  floater.style.border = "1px solid black";
-  floater.style.padding = "2px 5px";
-  floater.style.zIndex = "1000";
-  setTimeout(() => {
-    floater.remove();
-  }, 1000); // Automatically remove after 2 seconds
+function shouldUseLightText() {
+    // Checks if the system is set to dark mode
+    const darkModeOn = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return darkModeOn;
+}
+
+function showFloatingCount(x, y, count, textColor, backgroundColor) {
+    let floater = document.getElementById('text-counter-floater');
+    if (!floater) {
+        floater = document.createElement('div');
+        floater.id = 'text-counter-floater';
+        document.body.appendChild(floater);
+    }
+    floater.textContent = `Count: ${count}`;
+    floater.style.position = 'absolute';
+    floater.style.left = `${x}px`;
+    floater.style.top = `${y}px`;
+    floater.style.color = textColor;
+    floater.style.backgroundColor = backgroundColor;
+    floater.style.border = '1px solid ' + (textColor === 'white' ? 'grey' : 'black');
+    floater.style.padding = '2px 5px';
+    floater.style.zIndex = '1000';
+    setTimeout(() => { floater.remove(); }, 1000); // Remove after 1 seconds
 }
