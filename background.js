@@ -133,7 +133,6 @@ async function generateAndPlayTTS(ip, port, data, tab) {
         chrome.tabs.sendMessage(tab.id, { action: "hideSpinner" });
       }
     );
-
     chrome.windows.create(
       {
         url: result.output_file_url,
@@ -147,11 +146,6 @@ async function generateAndPlayTTS(ip, port, data, tab) {
         console.log("Popup window created:", window);
       }
     );
-
-    // chrome.tabs.create({ url: result.output_file_url }, function (tab) {
-    //   console.log("New tab created for audio:", tab);
-
-    // });
   } catch (error) {
     console.error("Error requesting TTS audio:", error);
     // Hide spinner if there's an error
