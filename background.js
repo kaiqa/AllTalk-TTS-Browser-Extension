@@ -52,7 +52,6 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
           const outputFileTimestamp = "true";
           const autoplay = "false";
           const autoplayVolume = "0.7";
-          console.log("Howler.js loaded");
 
           generateAndPlayTTS(
             ip,
@@ -135,9 +134,24 @@ async function generateAndPlayTTS(ip, port, data, tab) {
       }
     );
 
-    chrome.tabs.create({ url: result.output_file_url }, function (tab) {
-      console.log("New tab created for audio:", tab);
-    });
+    chrome.windows.create(
+      {
+        url: result.output_file_url,
+        type: "popup",
+        width: 500, // Define the width of the popup
+        height: 300, // Define the height of the popup
+        left: 100, // Optionally define the left position of the popup
+        top: 100, // Optionally define the top position of the popup
+      },
+      function (window) {
+        console.log("Popup window created:", window);
+      }
+    );
+
+    // chrome.tabs.create({ url: result.output_file_url }, function (tab) {
+    //   console.log("New tab created for audio:", tab);
+
+    // });
   } catch (error) {
     console.error("Error requesting TTS audio:", error);
     // Hide spinner if there's an error
