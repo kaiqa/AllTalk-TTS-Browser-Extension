@@ -189,13 +189,20 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
       console.log("Request Data:", requestData);
 
-      generateAndPlayTTS(ip, port, requestData, tab, characterVoice);
+      generateAndPlayTTS(ip, port, requestData, tab, characterVoice, textInput);
     }
   );
 });
 
 // Function to generate and play TTS
-async function generateAndPlayTTS(ip, port, data, tab, selectedVoice) {
+async function generateAndPlayTTS(
+  ip,
+  port,
+  data,
+  tab,
+  selectedVoice,
+  selectionText
+) {
   const url = `http://${ip}:${port}/api/tts-generate`;
 
   try {
@@ -253,9 +260,15 @@ async function generateAndPlayTTS(ip, port, data, tab, selectedVoice) {
 
     console.log("Selected voice before popup:", selectedVoice);
 
+    // const popupUrl = `playerpop.html?audio=${encodeURIComponent(
+    //   result.output_file_url
+    // )}&title=${encodeURIComponent(selectedVoice)}`;
+
     const popupUrl = `playerpop.html?audio=${encodeURIComponent(
       result.output_file_url
-    )}&title=${encodeURIComponent(selectedVoice)}`;
+    )}&title=${encodeURIComponent(selectedVoice)}&text=${encodeURIComponent(
+      selectionText
+    )}`;
 
     chrome.windows.create(
       {
