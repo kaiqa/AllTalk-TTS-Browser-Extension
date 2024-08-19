@@ -20,11 +20,11 @@ chrome.runtime.onStartup.addListener(() => {
 // Function to create the context menus
 function createContextMenu() {
   chrome.contextMenus.removeAll(() => {
-    // Create the main Play TTS context menu
+    // Create the main Play TTS context menu (as a standalone actionable item)
     chrome.contextMenus.create(
       {
         id: "playTTS",
-        title: "Play TTS",
+        title: "Play",
         contexts: ["selection"],
       },
       () => {
@@ -39,11 +39,10 @@ function createContextMenu() {
       }
     );
 
-    // Create the Voices submenu
+    // Create the Voices submenu (not an actionable item)
     chrome.contextMenus.create(
       {
-        id: "voices",
-        parentId: "playTTS",
+        id: "voicesParent",
         title: "Voices",
         contexts: ["selection"],
       },
@@ -78,6 +77,13 @@ function fetchVoicesAndCreateSubmenu() {
       fetch(apiUrl)
         .then((response) => {
           if (!response.ok) {
+            chrome.notifications.create({
+              type: "basic",
+              iconUrl: "images/icon.png",
+              title: "Error",
+              message:
+                "No voices available, ensure TTS server is started then reload extension.",
+            });
             throw new Error(
               `Network response was not ok: ${response.statusText}`
             );
@@ -95,10 +101,9 @@ function fetchVoicesAndCreateSubmenu() {
             chrome.contextMenus.create(
               {
                 id: voiceId,
-                parentId: "voices",
+                parentId: "voicesParent", // Attach to Voices parent
                 title: voice,
                 contexts: ["selection"],
-                // No onclick here, use global listener instead
               },
               () => {
                 if (chrome.runtime.lastError) {
@@ -122,61 +127,71 @@ function fetchVoicesAndCreateSubmenu() {
 
 // Global event listener for context menu clicks
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-  if (info.menuItemId) {
-    console.log(`Selected voice ID: ${info.menuItemId}`);
-    const selectedVoice = info.menuItemId; // This should capture the selected voice correctly
-    console.log(`Selected voice: ${selectedVoice}`);
-    const selectionText = info.selectionText;
-    console.log(`Selected text: ${selectionText}`);
-    if (selectionText) {
-      chrome.storage.sync.get(
-        ["ip", "port", "characterVoice", "language"],
-        (data) => {
-          const ip = data.ip || "192.168.1.35";
-          const port = data.port || "7851";
-          const characterVoice = selectedVoice || "female_01.wav"; // Use selectedVoice here
-          const language = data.language || "en";
-          const textInput = selectionText;
-          const textFiltering = "standard";
-          const narratorEnabled = "false";
-          const narratorVoice = "male_01.wav";
-          const textNotInside = "character";
-          const outputFileName = "myoutputfile";
-          const outputFileTimestamp = "true";
-          const autoplay = "false";
-          const autoplayVolume = "0.7";
+  const menuItemId = info.menuItemId;
+  const selectionText = info.selectionText;
 
-          generateAndPlayTTS(
-            ip,
-            port,
-            {
-              text_input: textInput,
-              text_filtering: textFiltering,
-              character_voice_gen: characterVoice, // Pass characterVoice
-              narrator_enabled: narratorEnabled,
-              narrator_voice_gen: narratorVoice,
-              text_not_inside: textNotInside,
-              language: language,
-              output_file_name: outputFileName,
-              output_file_timestamp: outputFileTimestamp,
-              autoplay: autoplay,
-              autoplay_volume: autoplayVolume,
-            },
-            tab,
-            selectedVoice // Pass selectedVoice as a separate argument
-          );
-        }
-      );
-    } else {
-      console.error("No text selected");
-      chrome.notifications.create({
-        type: "basic",
-        iconUrl: "images/icon.png",
-        title: "Error",
-        message: "No text selected for TTS.",
-      });
-    }
+  console.log(`Menu item clicked: ${menuItemId}`);
+  console.log(`Selected text: ${selectionText}`);
+
+  if (!selectionText) {
+    console.error("No text selected");
+    chrome.notifications.create({
+      type: "basic",
+      iconUrl: "images/icon.png",
+      title: "Error",
+      message: "No text selected for TTS.",
+    });
+    return;
   }
+
+  chrome.storage.sync.get(
+    ["ip", "port", "characterVoice", "language"],
+    (data) => {
+      const ip = data.ip || "192.168.1.35";
+      const port = data.port || "7851";
+      let characterVoice = data.characterVoice || "female_01.wav"; // Default to settings' voice
+      const language = data.language || "en";
+
+      if (menuItemId === "playTTS") {
+        console.log(
+          "Top-level 'Play TTS' clicked, using default voice from settings."
+        );
+      } else {
+        console.log(`Submenu voice selected: ${menuItemId}`);
+        characterVoice = menuItemId; // Use the voice from the submenu
+      }
+
+      console.log("Final characterVoice being used:", characterVoice);
+
+      const textInput = selectionText;
+      const textFiltering = "standard";
+      const narratorEnabled = "false";
+      const narratorVoice = "male_01.wav";
+      const textNotInside = "character";
+      const outputFileName = "myoutputfile";
+      const outputFileTimestamp = "true";
+      const autoplay = "false";
+      const autoplayVolume = "0.7";
+
+      const requestData = {
+        text_input: textInput,
+        text_filtering: textFiltering,
+        character_voice_gen: characterVoice,
+        narrator_enabled: narratorEnabled,
+        narrator_voice_gen: narratorVoice,
+        text_not_inside: textNotInside,
+        language: language,
+        output_file_name: outputFileName,
+        output_file_timestamp: outputFileTimestamp,
+        autoplay: autoplay,
+        autoplay_volume: autoplayVolume,
+      };
+
+      console.log("Request Data:", requestData);
+
+      generateAndPlayTTS(ip, port, requestData, tab, characterVoice);
+    }
+  );
 });
 
 // Function to generate and play TTS
@@ -185,6 +200,8 @@ async function generateAndPlayTTS(ip, port, data, tab, selectedVoice) {
 
   try {
     console.log("Sending POST request to:", url);
+    console.log("Request data:", data);
+
     chrome.scripting.executeScript(
       {
         target: { tabId: tab.id },
@@ -204,6 +221,11 @@ async function generateAndPlayTTS(ip, port, data, tab, selectedVoice) {
     });
 
     if (!response.ok) {
+      console.error(
+        "Network response was not ok:",
+        response.status,
+        response.statusText
+      );
       chrome.scripting.executeScript(
         {
           target: { tabId: tab.id },
@@ -213,7 +235,7 @@ async function generateAndPlayTTS(ip, port, data, tab, selectedVoice) {
           chrome.tabs.sendMessage(tab.id, { action: "hideSpinner" });
         }
       );
-      throw new Error("Network response was not ok " + response.statusText);
+      throw new Error("Network response was not ok: " + response.statusText);
     }
 
     const result = await response.json();
@@ -229,9 +251,8 @@ async function generateAndPlayTTS(ip, port, data, tab, selectedVoice) {
       }
     );
 
-    console.log("Selected voice before popup:", selectedVoice); // Debug log
+    console.log("Selected voice before popup:", selectedVoice);
 
-    // Open the playerpop.html with the audio URL and selected voice name as query parameters
     const popupUrl = `playerpop.html?audio=${encodeURIComponent(
       result.output_file_url
     )}&title=${encodeURIComponent(selectedVoice)}`;
@@ -240,18 +261,17 @@ async function generateAndPlayTTS(ip, port, data, tab, selectedVoice) {
       {
         url: popupUrl,
         type: "popup",
-        width: 500, // Define the width of the popup
-        height: 300, // Define the height of the popup
-        left: 100, // Optionally define the left position of the popup
-        top: 100, // Optionally define the top position of the popup
+        width: 500,
+        height: 300,
+        left: 100,
+        top: 100,
       },
       function (window) {
         console.log(`Popup window created for voice: ${selectedVoice}`, window);
       }
     );
   } catch (error) {
-    console.error("Error requesting TTS audio:", error);
-    // Hide spinner if there's an error
+    console.error("Error requesting TTS audio:", error.message);
     chrome.scripting.executeScript(
       {
         target: { tabId: tab.id },
