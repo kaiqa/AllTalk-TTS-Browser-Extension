@@ -5,17 +5,65 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Player Popup</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: blanchedalmond;
+            background-color: #433a3a;
+            border-radius: 8px;
+            overflow-y: auto;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        h1,
+        p,
+        audio,
+        details {
+            padding: 10px;
+            width: calc(100% - 20px);
+            box-sizing: border-box;
+        }
+
+        audio {
+            display: block;
+            margin: 0 auto;
+        }
+
+        details {
+            background-color: #504949;
+            border-radius: 5px;
+            margin: 5px auto;
+            padding: 10px;
+        }
+
+        summary {
+            cursor: pointer;
+            outline: none;
+            font-weight: bold;
+            background-color: #5c5454;
+            color: blanchedalmond;
+            text-align: center;
+            border: none;
+            border-radius: 4px;
+        }
+
+        summary::-webkit-details-marker {
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
-    <h1 id="voiceName">Loading...</h1>
+    <h2 id="voiceName">Loading...</h2>
     <audio id="audioPlayer" controls autoplay>
         Your browser does not support the audio element.
     </audio>
-
-    <p id="selectedText">Selected text goes here...</p>
-
-
+    <details>
+        <summary>Show/Hide Selected Text</summary>
+        <p id="selectedText">Selected text goes here...</p>
+    </details>
     <script src="playerpop.js"></script>
 </body>
 

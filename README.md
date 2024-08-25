@@ -58,6 +58,8 @@ Debug Context Menu Actions:
 Right-click on any selected text on a web page to trigger the context menu action.
 Monitor the background script console (from the "background page" DevTools) to see logs and errors.
 Debug Notifications and Spinner:
+
 ### Install
 npm install --save-dev webpack webpack-cli
 npx webpack
+(note: $env:OLLAMA_ORIGINS="chrome-extension://*"; ollama serve)

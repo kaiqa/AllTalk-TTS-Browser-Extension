@@ -260,10 +260,6 @@ async function generateAndPlayTTS(
 
     console.log("Selected voice before popup:", selectedVoice);
 
-    // const popupUrl = `playerpop.html?audio=${encodeURIComponent(
-    //   result.output_file_url
-    // )}&title=${encodeURIComponent(selectedVoice)}`;
-
     const popupUrl = `playerpop.html?audio=${encodeURIComponent(
       result.output_file_url
     )}&title=${encodeURIComponent(selectedVoice)}&text=${encodeURIComponent(
@@ -275,7 +271,7 @@ async function generateAndPlayTTS(
         url: popupUrl,
         type: "popup",
         width: 500,
-        height: 300,
+        height: 500,
         left: 100,
         top: 100,
       },
