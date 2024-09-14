@@ -63,3 +63,12 @@ Debug Notifications and Spinner:
 npm install --save-dev webpack webpack-cli
 npx webpack
 (note: $env:OLLAMA_ORIGINS="chrome-extension://*"; ollama serve)
+
+### compile
+
+npx webpack           
+asset background.bundle.js 4.46 KiB [compared for emit] [minimized] (name: background) 1 related asset
+asset content.bundle.js 1.92 KiB [compared for emit] [minimized] (name: content) 1 related asset
+./background.js 8.57 KiB [built] [code generated]
+./content.js 3.56 KiB [built] [code generated]
+webpack 5.93.0 compiled successfully in 284 ms
